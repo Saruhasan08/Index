@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Image Slider</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #222;
+            flex-direction: column;
+        }
+
+        .slider {
+            position: relative;
+            width: 80%;
+            max-width: 600px;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .slides {
+            display: flex;
+            transition: opacity 1s ease-in-out;
+            position: relative;
+        }
+
+        .slide {
+            min-width: 100%;
+            display: none;
+            text-align: center;
+        }
+
+        .slide img {
+            width: 100%;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .slide img:hover {
+            transform: scale(1.05);
+        }
+
+        .active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Navigation Buttons */
+        .prev, .next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .prev { left: 10px; }
+        .next { right: 10px; }
+
+        .prev:hover, .next:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        /* Dots Navigation */
+        .dots {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .dot {
+            height: 10px;
+            width: 10px;
+            margin: 5px;
+            background-color: #bbb;
+            border-radius: 50%;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .dot.active {
+            background-color: #fff;
+        }
+
+        /* Thumbnails */
+        .thumbnails {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .thumbnail {
+            width: 60px;
+            height: 40px;
+            margin: 5px;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+        }
+
+        .thumbnail:hover {
+            opacity: 1;
+        }
+
+        .thumbnail.active {
+            border: 2px solid white;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="slider">
+        <div class="slides">
+            <div class="slide active"><img src="https://images.pexels.com/photos/1173777/pexels-photo-1173777.jpeg?auto=compress&cs=tinysrgb&w=600>"alt="Image 1" onclick="zoomImage(this)"></div>
+            <div class="slide"><img src="https://images.pexels.com/photos/775201/pexels-photo-775201.jpeg?auto=compress&cs=tinysrgb&w=600>"alt="Image 2" onclick="zoomImage(this)"></div>
+            <div class="slide"><img src="https://images.pexels.com/photos/1658967/pexels-photo-1658967.jpeg?auto=compress&cs=tinysrgb&w=600>"alt="Image 3" onclick="zoomImage(this)"></div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <button class="prev" onclick="changeSlide(-1)">&#10094;</button>
+        <button class="next" onclick="changeSlide(1)">&#10095;</button>
+    </div>
+
+    <!-- Dots Navigation -->
+    <div class="dots"></div>
+
+    <!-- Thumbnails -->
+    <div class="thumbnails">
+        <img src="image1.jpg" class="thumbnail active" onclick="jumpToSlide(0)">
+        <img src="image2.jpg" class="thumbnail" onclick="jumpToSlide(1)">
+        <img src="image3.jpg" class="thumbnail" onclick="jumpToSlide(2)">
+    </div>
+
+    <script>
+        let index = 0;
+        const slides = document.querySelectorAll(".slide");
+        const dotsContainer = document.querySelector(".dots");
+        const thumbnails = document.querySelectorAll(".thumbnail");
+
+        function showSlide(i) {
+            slides.forEach(slide => slide.classList.remove("active"));
+            dotsContainer.innerHTML = "";
+
+            index = (i + slides.length) % slides.length;
+
+            slides[index].classList.add("active");
+
+            // Update Dots
+            for (let j = 0; j < slides.length; j++) {
+                let dot = document.createElement("span");
+                dot.classList.add("dot");
+                if (j === index) dot.classList.add("active");
+                dot.addEventListener("click", () => jumpToSlide(j));
+                dotsContainer.appendChild(dot);
+            }
+
+            // Update Thumbnails
+            thumbnails.forEach(thumb => thumb.classList.remove("active"));
+            thumbnails[index].classList.add("active");
+        }
+
+        function changeSlide(step) {
+            showSlide(index + step);
+        }
+
+        function jumpToSlide(n) {
+            showSlide(n);
+        }
+
+        function zoomImage(img) {
+            let zoomed = document.createElement("div");
+            zoomed.style.position = "fixed";
+            zoomed.style.top = "0";
+            zoomed.style.left = "0";
+            zoomed.style.width = "100vw";
+            zoomed.style.height = "100vh";
+            zoomed.style.background = "rgba(0, 0, 0, 0.8)";
+            zoomed.style.display = "flex";
+            zoomed.style.alignItems = "center";
+            zoomed.style.justifyContent = "center";
+            zoomed.style.cursor = "pointer";
+
+            let zoomedImg = document.createElement("img");
+            zoomedImg.src = img.src;
+            zoomedImg.style.maxWidth = "90%";
+            zoomedImg.style.maxHeight = "90%";
+            zoomedImg.style.borderRadius = "10px";
+            zoomed.appendChild(zoomedImg);
+
+            zoomed.onclick = () => document.body.removeChild(zoomed);
+            document.body.appendChild(zoomed);
+        }
+
+        // Swipe Gesture Support
+        let startX = 0;
+
+        document.querySelector(".slider").addEventListener("touchstart", (e) => {
+            startX = e.touches[0].clientX;
+        });
+
+        document.querySelector(".slider").addEventListener("touchend", (e) => {
+            let endX = e.changedTouches[0].clientX;
+            if (startX > endX + 50) changeSlide(1); // Swipe Left
+            if (startX < endX - 50) changeSlide(-1); // Swipe Right
+        });
+
+        // Auto Slide Every 3 Seconds
+        setInterval(() => {
+            changeSlide(1);
+        }, 3000);
+
+        showSlide(index);
+    </script>
+
+</body>
+</html>
